@@ -7,7 +7,7 @@
 //      .../mod-rs/grails-app/domain/org/olf/rs/PatronRequest.groovy
 
 const _ = require('lodash');
-const uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 
 
 // From OpenURL v0.1 specification, table in section 7, valid genres are:
@@ -87,6 +87,7 @@ function translateCOtoRR(co) {
   rr.edition = _.get(m, 'rft.edition');
   rr.issn = _.get(m, 'rft.issn');
   rr.isbn = _.get(m, 'rft.isbn');
+  rr.oclcNumber = _.get(m, 'rft.oclc');
   // rr.doi has no corresponding OpenURL field XXX but consider poking around in rft.id
   rr.coden = _.get(m, 'rft.coden');
   rr.sici = _.get(m, 'rft.sici');
@@ -125,6 +126,12 @@ function translateCOtoRR(co) {
   // rr.preErrorStatus;
   // rr.awaitingProtocolResponse;
   // rr.rotaPosition;
+
+  const illiadIdentifier = _.get(m, 'rft.identifier_illiad');
+  if (illiadIdentifier != null) {
+    rr.requestIdentifiers = [];
+    rr.requestIdentifiers.push({ 'identifierType': 'illiad', 'identifier': illiadIdentifier });
+  }
 
   rr.tags = undefined;
   rr.customProperties = undefined;
