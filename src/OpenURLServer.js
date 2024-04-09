@@ -60,7 +60,6 @@ function unArray(val) {
 
 
 function makeFormData(ctx, query, service, valuesNotShownInForm, firstTry) {
-  const currentCopyrightType = query['rft.copyrightType'] || service.defaultCopyrightType;
   query.svc_id ||= 'loan';
 
   const data = Object.assign({}, query, {
@@ -92,10 +91,6 @@ function makeFormData(ctx, query, service, valuesNotShownInForm, firstTry) {
       code: x,
       name: x === '' ? '(None selected)' : x === 'bookitem' ? 'Book chapter' : x.charAt(0).toUpperCase() + x.slice(1),
       selected: x === query['rft.genre'] ? 'selected' : '',
-    })),
-    copyrightTypes: (service.copyrightTypes || []).map(x => ({
-      ...x,
-      selected: x.code === currentCopyrightType ? 'selected' : '',
     })),
     services: ['loan', 'copy'].map((x, i) => ({
       code: x,
@@ -137,7 +132,7 @@ async function maybeRenderForm(ctx, next) {
   } else {
     formName = 'form1';
     formFields.push('rft.title', 'rft.au', 'rft.date', 'rft.pub', 'rft.place', 'rft.edition', 'rft.isbn', 'rft.oclc',
-      'rft.authorOfComponent', 'rft.copyrightType', 'rft.genre', 'rft.issn', 'rft.jtitle', 'rft.pagesRequested',
+      'rft.authorOfComponent', 'rft.genre', 'rft.issn', 'rft.jtitle', 'rft.pagesRequested',
       'rft.sponsoringBody', 'rft.subtitle', 'rft.titleOfComponent', 'rft.issue', 'svc_id');
   }
 
@@ -145,8 +140,6 @@ async function maybeRenderForm(ctx, next) {
   if (!npl) {
     await Promise.all([
       service.getPickupLocations(),
-      service.getCopyrightTypes(),
-      service.getDefaultCopyrightType(),
     ]);
   }
 
@@ -249,7 +242,6 @@ async function postReshareRequest(ctx, next) {
     vars.hasGenre = !!vars.json?.publicationType?.value;
     vars.hasDate = !!vars.json?.publicationDate;
     vars.hasISBN = !!vars.json?.isbn;
-    vars.clientSideCopyrightType = rreq.copyrightType; // XXX This should not be necessary
 
     ctx.body = ctx.cfg.runTemplate(res.ok ? 'good' : 'bad', vars);
   }

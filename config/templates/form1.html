@@ -22,18 +22,7 @@
             </div>
             <div class="page__body">
 
-              <h2>Request type</h2>
-
-              <div class="key-value-pair">
-                <div class="key">Service type</div>
-                <div class="value">
-                  {{#each services}}
-                    <label for="service_{{code}}">{{name}}</label>
-                    <input type="radio" id="service_{{code}}" name="svc_id" value="{{code}}" {{this.checked}}
-                           onchange="setServiceType('{{code}}')">
-                  {{/each}}
-                </div>
-              </div>
+              <h2>Request information</h2>
 
               {{#unless digitalOnly}}
               <div id="div-pickupLocation" class="key-value-pair">
@@ -54,38 +43,12 @@
               </div>
               {{/unless}}
 
-              <div id="div-genre" class="key-value-pair">
-                <label class="key" for="input-format">Genre</label>
-                <div class="value">
-                  <select class="select" id="input-format" name="rft.genre">
-                    {{#each formats}}
-                      <option value="{{this.code}}" {{this.selected}}>{{this.name}}</option>
-                    {{/each}}
-                  </select>
-                  {{#if noGenre}}
-                    <div class="error">Please supply a genre.</div>
-                  {{/if}}
-                </div>
-              </div>
-
               <div class="key-value-pair">
                 <label class="key" for="input-neededBy">Date needed by</label>
                 <div class="value">
                   <input id="input-neededBy" type="date" name="svc.neededBy" value="{{'svc.neededBy'}}">
                 </div>
               </div>
-
-              <div id="div-copyrightType" class="onlyForCopy key-value-pair">
-                <label class="key" for="input-copyrightType">Copyright type</label>
-                <div class="value">
-                  <select class="select" id="input-copyrightType" name="rft.copyrightType">
-                    {{#each copyrightTypes}}
-                      <option value="{{this.code}}" {{this.selected}}>{{this.name}}</option>
-                    {{/each}}
-                  </select>
-                </div>
-              </div>
-
 
               <h2>Details</h2>
 
@@ -181,13 +144,6 @@
 
 
               <h2>Publication Details</h2>
-
-              <div class="key-value-pair">
-                <label class="key" for="input-jtitle">Series title and numbering</label>
-                <div class="value">
-                  <input id="input-jtitle" type="text" name="rft.jtitle" value="{{'rft.jtitle'}}">
-                </div>
-              </div>
 
               <div class="key-value-pair">
                 <label class="key" for="input-publisher">Publisher</label>
