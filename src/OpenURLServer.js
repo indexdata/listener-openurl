@@ -51,59 +51,133 @@ async function parseRequest(ctx, next) {
   await next();
 }
 
+
+// Used to protect against keys that are included multiple times
+function unArray(val) {
+  while (Array.isArray(val)) val = val[0];
+  return val;
+}
+
+
+function makeFormData(ctx, query, service, valuesNotShownInForm, firstTry) {
+  const currentCopyrightType = query['rft.copyrightType'] || service.defaultCopyrightType;
+  query.svc_id ||= 'loan';
+
+  const data = Object.assign({}, query, {
+    valuesNotShownInForm,
+    digitalOnly: ctx.state?.svcCfg?.digitalOnly,
+    isCopy: query.svc_id === 'copy',
+
+    // Annoyingly, Handlebars' {{#if NAME}} does not work with dotted names like `rft.genre`, so we need these redundant booleans
+    hasGenre: !!query['rft.genre'],
+    hasDate: !!query['rft.date'],
+    hasISBN: !!query['rft.isbn'],
+
+    noPickupLocation: !firstTry && !query['svc.pickupLocation'] && !ctx.state?.svcCfg?.digitalOnly,
+    noGenre: !firstTry && !query['rft.genre'] && query.svc_id === 'copy',
+    noTitle: !firstTry && !query['rft.title'] && query.svc_id === 'loan',
+    noAuthor: !firstTry && !query['rft.au'] && query.svc_id === 'loan',
+    noChapterTitle: !firstTry && !query['rft.titleOfComponent'] && query.svc_id === 'copy',
+    noChapterAuthor: !firstTry && !query['rft.authorOfComponent'] && query.svc_id === 'copy',
+    noDate: !firstTry && !query['rft.date'] && query.svc_id === 'copy',
+
+    onePickupLocation: (service?.pickupLocations?.length === 1),
+    pickupLocations: (service.pickupLocations || []).map(x => ({
+      id: x.id,
+      code: x.code,
+      name: x.name,
+      selected: x.code === query['svc.pickupLocation'] ? 'selected' : '',
+    })),
+    formats: ['', 'article', 'book', 'bookitem', 'journal', 'other'].map(x => ({
+      code: x,
+      name: x === '' ? '(None selected)' : x === 'bookitem' ? 'Book chapter' : x.charAt(0).toUpperCase() + x.slice(1),
+      selected: x === query['rft.genre'] ? 'selected' : '',
+    })),
+    copyrightTypes: (service.copyrightTypes || []).map(x => ({
+      ...x,
+      selected: x.code === currentCopyrightType ? 'selected' : '',
+    })),
+    services: ['loan', 'copy'].map((x, i) => ({
+      code: x,
+      name: x.charAt(0).toUpperCase() + x.slice(1),
+      checked: x === query.svc_id || (!query.svc_id && i === 0) ? 'checked' : '',
+    })),
+  });
+
+  const format = data.formats.filter(x => x.selected);
+  if (format.length === 0) {
+    // Nothing explicitly selected, so default from service-type
+    if (data.services[0].checked) {
+      data.formats[2].selected = 'selected';
+    }
+  }
+
+  return data;
+}
+
+
 async function maybeRenderForm(ctx, next) {
   const { co, metadata, service, npl } = ctx.state;
 
   ctx.cfg.log('flow', 'Check metadata to determine if we should render form');
-  if (!co.hasBasicData() || typeof ctx.query?.confirm !== 'undefined' || (!npl && !get(metadata, ['svc', 'pickupLocation']))) {
-    ctx.cfg.log('flow', 'Rendering form');
-    if (!npl) await service.getPickupLocations();
-
-    const query = Object.assign({}, co.getQuery());
-    delete query.confirm;
-    const ntries = query['svc.ntries'] || 0;
-    query['svc.ntries'] = ntries + 1;
-
-    let formName;
-    const formFields = ['svc.pickupLocation', 'rft.volume', 'svc.note'];
-    if (co.hasBasicData()) {
-      formName = 'form2';
-      formFields.push('svc.neededBy'); // XXX Should this also be in form1?
-    } else {
-      formName = 'form1';
-      formFields.push('rft.title', 'rft.au', 'rft.date', 'rft.pub', 'rft.place', 'rft.edition', 'rft.isbn', 'rft.oclc');
-    }
-
-    if (!query['rft.title']) {
-      query['rft.title'] = query['rft.btitle'] || query['rft.atitle'] || query['rft.jtitle'];
-    }
-    if (!query['rft.au']) {
-      query['rft.au'] = query['rft.creator'] || query['rft.aulast'] || query['rft.aufirst'];
-    }
-
-    const allValues = Object.keys(omit(query, formFields))
-      .sort()
-      .map(key => `<input type="hidden" name="${key}" value="${query[key]}" />`)
-      .join('\n');
-
-    const data = Object.assign({}, query, {
-      allValues,
-      digitalOnly: ctx.state?.svcCfg?.digitalOnly,
-      noPickupLocation: ntries > 0 && !query['svc.pickupLocation'] && !ctx.state?.svcCfg?.digitalOnly,
-      onePickupLocation: (service?.pickupLocations?.length === 1),
-      pickupLocations: (service.pickupLocations || []).map(x => ({
-        id: x.id,
-        code: x.code,
-        name: x.name,
-        selected: x.id === query['svc.pickupLocation'] ? 'selected' : '',
-      })),
-    });
-
-    const template = ctx.cfg.getTemplate(formName);
-    ctx.body = template(data);
-  } else {
-    await next();
+  // The form is good if it has no pickup location is required OR one is supplied OR it's a copy request
+  if (co.hasBasicData() &&
+      (npl ||
+       get(metadata, ['svc', 'pickupLocation']) ||
+       co.admindata.svc?.id === 'copy'
+      )) {
+    return await next();
   }
+
+  let formName;
+  // Fields that are included in the form, and whose values should therefore NOT be provided as hidden inputs
+  const formFields = ['svc.pickupLocation', 'rft.volume', 'svc.note', 'svc.neededBy'];
+  if (co.hasBasicData() && !metadata.svc?.longForm) {
+    formName = 'form2';
+  } else {
+    formName = 'form1';
+    formFields.push('rft.title', 'rft.au', 'rft.date', 'rft.pub', 'rft.place', 'rft.edition', 'rft.isbn', 'rft.oclc',
+      'rft.authorOfComponent', 'rft.copyrightType', 'rft.genre', 'rft.issn', 'rft.jtitle', 'rft.pagesRequested',
+      'rft.sponsoringBody', 'rft.subtitle', 'rft.titleOfComponent', 'rft.issue', 'svc_id');
+  }
+
+  ctx.cfg.log('flow', 'Rendering form', formName);
+  if (!npl) {
+    await Promise.all([
+      service.getPickupLocations(),
+      service.getCopyrightTypes(),
+      service.getDefaultCopyrightType(),
+    ]);
+  }
+
+  const originalQuery = co.getQuery();
+  const query = {};
+  Object.keys(originalQuery).forEach(key => {
+    query[key] = unArray(originalQuery[key]);
+  });
+
+  if (formName === 'form1') {
+    // Stay on this form until everything is filled in
+    query['svc.longForm'] = '1';
+  }
+
+  const ntries = query['svc.ntries'] || '0';
+  query['svc.ntries'] = (parseInt(ntries) + 1).toString();
+
+  if (!query['rft.title']) {
+    query['rft.title'] = query['rft.btitle'] || query['rft.atitle'] || query['rft.jtitle'];
+  }
+  if (!query['rft.au']) {
+    query['rft.au'] = query['rft.creator'] || query['rft.aulast'] || query['rft.aufirst'];
+  }
+
+  const valuesNotShownInForm = Object.keys(omit(query, formFields))
+    .sort()
+    .map(key => `<input type="hidden" name="${key}" value="${query[key]?.replaceAll('"', '&quot;')}">`)
+    .join('\n');
+
+  const data = makeFormData(ctx, query, service, valuesNotShownInForm, parseInt(ntries) === 0);
+  ctx.body = ctx.cfg.runTemplate(formName, data);
 }
 
 async function maybeReturnAdminData(ctx, next) {
@@ -143,9 +217,8 @@ async function postReshareRequest(ctx, next) {
   const body = await res.text();
   ctx.cfg.log('posted', `sent request, status ${res.status}`);
 
-  if (`${res.status}`[0] !== '2') {
+  if (!res.ok) {
     ctx.cfg.log('error', `POST error ${res.status}:`, body);
-    ctx.throw(500, 'Error encountered submitting request to mod-rs', { expose: true });
   }
 
   if (admindata.svc?.id === 'json') {
@@ -158,11 +231,11 @@ async function postReshareRequest(ctx, next) {
     };
   } else {
     ctx.set('Content-Type', 'text/html');
-    const status = `${res.status}`;
-    const vars = { status };
+    const vars = { status: res.status.toString() };
     try {
       vars.json = JSON.parse(body);
     } catch (e) {
+      vars.json = {};
       vars.text = body;
     };
 
@@ -172,9 +245,13 @@ async function postReshareRequest(ctx, next) {
       if (location) vars.pickupLocationName = location.name;
     }
 
-    const ok = (status[0] === '2');
-    const template = ctx.cfg.getTemplate(ok ? 'good' : 'bad');
-    ctx.body = template(vars);
+    vars.isCopy = vars.json?.serviceType.value === 'copy';
+    vars.hasGenre = !!vars.json?.publicationType?.value;
+    vars.hasDate = !!vars.json?.publicationDate;
+    vars.hasISBN = !!vars.json?.isbn;
+    vars.clientSideCopyrightType = rreq.copyrightType; // XXX This should not be necessary
+
+    ctx.body = ctx.cfg.runTemplate(res.ok ? 'good' : 'bad', vars);
   }
 };
 
