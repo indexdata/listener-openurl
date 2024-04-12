@@ -66,7 +66,8 @@ function makeFormData(ctx, query, service, valuesNotShownInForm, firstTry) {
   const data = Object.assign({}, query, {
     valuesNotShownInForm,
     digitalOnly: ctx.state?.svcCfg?.digitalOnly,
-    isCopy: query.svc_id === 'copy',
+    //isCopy: query.svc_id === 'copy',
+    isCopy: false,
 
     // Annoyingly, Handlebars' {{#if NAME}} does not work with dotted names like `rft.genre`, so we need these redundant booleans
     hasGenre: !!query['rft.genre'],
@@ -246,8 +247,10 @@ async function postReshareRequest(ctx, next) {
       if (location) vars.pickupLocationName = location.name;
     }
 
-    vars.isCopy = vars.json?.serviceType.value === 'copy';
-    vars.hasGenre = !!vars.json?.publicationType?.value;
+    //vars.isCopy = vars.json?.serviceType.value === 'copy';
+    vars.isCopy = false;
+    //vars.hasGenre = !!vars.json?.publicationType?.value;
+    vars.hasGenre = false;
     vars.hasDate = !!vars.json?.publicationDate;
     vars.hasISBN = !!vars.json?.isbn;
     vars.clientSideCopyrightType = rreq.copyrightType; // XXX This should not be necessary
