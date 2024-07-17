@@ -1,5 +1,5 @@
     {
-      "loggingCategories": "error,start,okapi,co,rr",
+      "loggingCategories": "error,start,okapi,co,rr,admindata,metadata,flow",
       "listenPort": 3012,
       "docRoot": "htdocs",
 
@@ -9,162 +9,25 @@
       "template.form2": "templates/form2.html",
 
        "branding": {
-         "backgroundColor": "#007ebd",
-         "customerName": "MNLINK",
-         "logoUrl": "https://reshare-assets.s3.amazonaws.com/mnlink.svg",
-         "logoLink": "https://mnlink.org/about"
+         "backgroundColor": "#17187B",
+         "customerName": "Fenway Library Organization",
+         "logoUrl": "https://libapps.s3.amazonaws.com/accounts/167143/images/bitmap10.png",
+         "logoLink": "https://libraries.flo.org/home"
        },
 
       "services": {
-        "ISIL:US-MNMAC": {
-          "okapiUrl": "https://anokacounty-okapi.reshare.indexdata.com",
-          "tenant": "anokacounty",
-          "username": "anokacounty_admin",
-          "password": "kDQX4ZYjOltOYaxL"
-        },
-        "ISIL:US-MNVA": {
-          "okapiUrl": "https://arrowhead-okapi.reshare.indexdata.com",
-          "tenant": "arrowhead",
-          "username": "arrowhead_admin",
-          "password": "naidooGhar2chikoolab1hoT"
-        },
-        "ISIL:US-MNCH": {
-          "okapiUrl": "https://carverlib-okapi.reshare.indexdata.com",
-          "tenant": "carverlib",
-          "username": "carverlib_admin",
-          "password": "quonigh7jaixeer4noh8phiV"
-        },
-        "ISIL:US-MNWSPD": {
-          "okapiUrl": "https://dakota-okapi.reshare.indexdata.com",
-          "tenant": "dakota",
-          "username": "dakota_admin",
-          "password": "eizoovaeFooL2yuj6ighee6v"
-        },
-        "ISIL:US-MNDU": {
-          "okapiUrl": "https://dpl-okapi.reshare.indexdata.com",
-          "tenant": "dpl",
-          "username": "dpl_admin",
-          "password": "thaeceeQu3iethoc9Rezoo2a"
-        },
-        "ISIL:US-MNCAE": {
-          "okapiUrl": "https://ecrlib-okapi.reshare.indexdata.com",
-          "tenant": "ecrlib",
-          "username": "ecrlib_admin",
-          "password": "tush9ao0veJaepeeg2phai6a"
-        },
-        "ISIL:US-MNSTCLG": {
-          "okapiUrl": "https://griver-okapi.reshare.indexdata.com",
-          "tenant": "griver",
-          "username": "griver_admin",
-          "password": "kie0rie2Chienguos9ihai9c"
-        },
-        "ISIL:US-MNMHCL": {
-          "okapiUrl": "https://hclib-okapi.reshare.indexdata.com",
-          "tenant": "hclib",
-          "username": "hclib_admin",
-          "password": "ohjae1heyou4Ouxohfaeg8fe"
-        },
-        "ISIL:US-MNPR": {
-          "okapiUrl": "https://krls-okapi.reshare.indexdata.com",
-          "tenant": "krls",
-          "username": "krls_admin",
-          "password": "Ien4kahpeemaomie0shie1ju"
-        },
-        "ISIL:US-MNTEST": {
-          "okapiUrl": "https://mnlinktest-okapi.reshare.indexdata.com",
-          "tenant": "mnlinktest",
-          "username": "mnlinktest_admin",
-          "password": "xil5re8koh4Aiy8eingoD2ah"
-        },
-        "ISIL:US-MNMOHL": {
-          "okapiUrl": "https://larl-okapi.reshare.indexdata.com",
-          "tenant": "larl",
-          "username": "larl_admin",
-          "password": "seYi1oosiquei4rohsaeph9v"
-        },
-        "ISIL:US-MNMPUMNX": {
-          "okapiUrl": "https://minitex-okapi.reshare.indexdata.com",
-          "tenant": "minitex",
-          "username": "minitex_admin",
-          "password": "chuGu8avee8ohnu8aish4ji1"
-        },
-        "ISIL:US-MNTNR": {
-          "okapiUrl": "https://nwrlib-okapi.reshare.indexdata.com",
-          "tenant": "nwrlib",
-          "username": "nwrlib_admin",
-          "password": "woh3eef2ieM7an4ieBet9Dei"
-        },
-        "ISIL:US-MNWILPLS": {
-          "okapiUrl": "https://pioneerland-okapi.reshare.indexdata.com",
-          "tenant": "pioneerland",
-          "username": "pioneerland_admin",
-          "password": "Nei2seiv8ein8deyabaeceer"
-        },
-        "ISIL:US-MNWOP": {
-          "okapiUrl": "https://plumcreeklibrary-okapi.reshare.indexdata.com",
-          "tenant": "plumcreeklibrary",
-          "username": "plumcreeklibrary_admin",
-          "password": "uo1zi0cejoogah6uPh8AeCho"
-        },
-        "ISIL:US-MNSRC": {
-          "okapiUrl": "https://rclreads-okapi.reshare.indexdata.com",
-          "tenant": "rclreads",
-          "username": "rclreads_admin",
-          "password": "eephai3fei1iej6jahc0ieD2"
-        },
-        "ISIL:US-MNR": {
-          "okapiUrl": "https://rplmn-okapi.reshare.indexdata.com",
-          "tenant": "rplmn",
-          "username": "rplmn_admin",
-          "password": "powaekuyeik4cho1Uw5yahxo"
-        },
-        "ISIL:US-MNSHS": {
-          "okapiUrl": "https://scottlib-okapi.reshare.indexdata.com",
-          "tenant": "scottlib",
-          "username": "scottlib_admin",
-          "password": "eireePhag6uay4ahsh4ahmai"
-        },
-        "ISIL:US-MNRHSLC": {
-          "okapiUrl": "https://selco-okapi.reshare.indexdata.com",
-          "tenant": "selco",
-          "username": "selco_admin",
-          "password": "eesoogoe8nair0Aix4eijeet"
-        },
-        "ISIL:US-MNSP": {
-          "okapiUrl": "https://sppl-okapi.reshare.indexdata.com",
-          "tenant": "sppl",
-          "username": "sppl_admin",
-          "password": "Voh5ze3UeP4bi9xoQuahmi6e"
-        },
-        "ISIL:US-MNMANTD": {
-          "okapiUrl": "https://tdslib-okapi.reshare.indexdata.com",
-          "tenant": "tdslib",
-          "username": "tdslib_admin",
-          "password": "me4jeeng0Udohgh8Noole7mu"
-        },
-        "ISIL:US-MNU": {
-          "okapiUrl": "https://umn-okapi.reshare.indexdata.com",
-          "tenant": "umn",
-          "username": "umn_admin",
-          "password": "aileesahco0Euweiriepet4v"
-        },
-        "ISIL:US-MNFFV": {
-          "okapiUrl": "https://vikinglibrarysystem-okapi.reshare.indexdata.com",
-          "tenant": "vikinglibrarysystem",
-          "username": "vikinglibrarysystem_admin",
-          "password": "Fei8ge7jiehei2AiThiHahNg"
-        },
-        "ISIL:US-MNLEW": {
-          "okapiUrl": "https://washcolib-okapi.reshare.indexdata.com",
-          "tenant": "washcolib",
-          "username": "washcolib_admin",
-          "password": "oghoh0ahCeti5Aejah4heebi"
+        "ISIL:US-FLOTEST": {
+          "okapiUrl": " https://flotest-okapi.reshare.indexdata.com",
+          "tenant": "flotest",
+          "username": "flotest_admin",
+          "password": "0CluRSVFt6sKgTkTBP"
         }
       },
 
       "--comment--": "These are the fallback settings when none of the services is matched",
-      "okapiUrl": "",
-      "tenant": "",
-      "username": "",
-      "password": ""
+      "okapiUrl": "https://flotest-okapi.reshare.indexdata.com",
+      "tenant": "flotest",
+      "username": "flotest_admin",
+      "password": "0CluRSVFt6sKgTkTBP"
     }
+
