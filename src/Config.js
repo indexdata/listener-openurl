@@ -3,7 +3,9 @@ const Logger = require('categorical-logger');
 const Handlebars = require('handlebars');
 
 Handlebars.registerHelper('json', function(obj) {
-  return JSON.stringify(obj, null, 2);
+  const objWithoutBranding = { ...obj };
+  delete objWithoutBranding.branding;
+  return JSON.stringify(objWithoutBranding, null, 2);
 });
 
 class Config {
@@ -35,14 +37,18 @@ class Config {
     return fs.readFileSync(this.path + '/' + filename, 'utf8');
   }
 
-  getTemplate(name) {
-    if (!this.cachedTemplates[name]) {
+  runTemplate(name, values) {
+    let template = this.cachedTemplates[name];
+    if (!template || this.values.reloadTemplates) {
       const filename = this.values[`template.${name}`];
       if (!filename) throw Error(`no template '${name}'`);
       const text = this.readFile(filename);
-      this.cachedTemplates[name] = Handlebars.compile(text);
+      this.log('loadTemplate', filename);
+      template = Handlebars.compile(text);
+      this.cachedTemplates[name] = template;
     }
-    return this.cachedTemplates[name];
+
+    return template({ ...values, branding: this.values.branding });
   }
 }
 

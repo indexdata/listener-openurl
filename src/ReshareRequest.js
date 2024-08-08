@@ -27,14 +27,14 @@ const { v4: uuidv4 } = require('uuid');
 // unrecognised values are simply discarded rather than rejected.
 //
 function genreToPublicatonType(genre) {
-  if (genre === 'journal' || genre === 'article') {
-    return 'Journal';
-  } else if (genre === 'book' || genre === 'bookitem') {
-    return 'Book';
-  } else if (genre) { // conference, preprint, proceeding
-    return 'Other';
+  if (genre === undefined) {
+    return undefined;
+  } else if (genre === 'bookitem') {
+    return 'Chapter';
+  } else if (genre === 'other') {
+    return 'X-Other'; // XXX not part of https://illtransactions.org/opencode/2017/
   } else {
-    return genre;
+    return genre.charAt(0).toUpperCase() + genre.slice(1);
   }
 }
 
@@ -114,8 +114,17 @@ function translateCOtoRR(co) {
   rr.pickupLocationSlug = _.get(m, 'svc.pickupLocation');
   rr.neededBy = _.get(m, 'svc.neededBy');
 
+  // These are non-standard fields in OpenURL 1.0
   rr.serviceType = _.get(a, 'svc.id'); // No example of this in Z39.88
   rr.isRequester = true;
+  const copyrightType = _.get(m, 'rft.copyrightType');
+  if (copyrightType) rr.copyrightType = { value: copyrightType };
+  rr.subtitle = _.get(m, 'rft.subtitle');
+  rr.sponsoringBody = _.get(m, 'rft.sponsoringBody');
+  rr.authorOfComponent = _.get(m, 'rft.authorOfComponent');
+  rr.titleOfComponent = _.get(m, 'rft.titleOfComponent');
+  rr.pagesRequested = _.get(m, 'rft.pagesRequested');
+  rr.stitle = _.get(m, 'rft.jtitle'); // stitle/jtitle is NOT a typo! See ../doc/openurls-for-reshare.md
 
   // All of the following are probably used only internally
   // rr.state;

@@ -1,6 +1,6 @@
 {
   "name": "reshare-listener-openurl",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "OpenURL listener for ReShare",
   "repository": "openlibraryenvironment/listener-openurl",
   "main": "listener-openurl.js",
@@ -9,13 +9,14 @@
     "listener-openurl": "src/listener-openurl.js"
   },
   "scripts": {
-    "lint": "eslint --ext .js,.mjs src test",
+    "lint": "eslint -f unix --ext .js,.mjs src test",
     "test": "mocha",
     "integration": "mocha test/integration",
     "coverage": "nyc mocha",
     "start": "node src/listener-openurl.js"
   },
   "dependencies": {
+    "@koa/bodyparser": "^5.0.0",
     "@koa/router": "^12.0.0",
     "categorical-logger": "^1.0.0",
     "handlebars": "^4.7.7",
